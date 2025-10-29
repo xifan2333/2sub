@@ -1,4 +1,4 @@
-package asrprovider
+package llm
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"sync"
 )
 
-// Registry manages all registered ASR providers.
+// Registry manages all registered LLM providers.
 //
 // The registry is thread-safe and can be accessed concurrently.
 // Providers are typically registered during package initialization using init() functions.
@@ -20,12 +20,12 @@ var globalRegistry = &Registry{
 	providers: make(map[string]Provider),
 }
 
-// Register registers a new ASR provider in the global registry.
+// Register registers a new LLM provider in the global registry.
 //
 // This function is typically called from a provider's init() function:
 //
 //	func init() {
-//	    asrprovider.Register(&MyProvider{})
+//	    llm.Register(&MyProvider{})
 //	}
 //
 // If a provider with the same name already exists, it will be replaced.
@@ -41,7 +41,7 @@ func Register(provider Provider) {
 //
 // Example:
 //
-//	provider, err := asrprovider.Get("jianying")
+//	provider, err := llm.Get("openai")
 //	if err != nil {
 //	    // Provider not registered
 //	}
@@ -56,7 +56,7 @@ func Get(name string) (Provider, error) {
 //
 // Example:
 //
-//	names := asrprovider.List()
+//	names := llm.List()
 //	fmt.Printf("Available providers: %v\n", names)
 func List() []string {
 	return globalRegistry.List()
@@ -102,42 +102,47 @@ func (r *Registry) List() []string {
 	return names
 }
 
-// Transcribe is a convenience function that performs both Fetch and Parse in one call.
+// Chat is a convenience function that performs LLM chat completion.
 //
 // This is the recommended way to use the library for most use cases.
 //
 // Parameters:
 //   - ctx: Context for cancellation and timeout
-//   - providerName: Name of the provider to use (e.g., "jianying", "elevenlabs")
-//   - audioPath: Path to the audio file
-//   - opts: Provider-specific options (can be nil for defaults)
+//   - providerName: Name of the provider to use (e.g., "openai", "claude", "gemini")
+//   - opts: Provider options including API key, model, messages, etc.
 //
-// Returns the standardized transcription result or an error.
+// Returns the standardized chat result or an error.
 //
 // Example:
 //
-//	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+//	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 //	defer cancel()
 //
-//	result, err := asrprovider.Transcribe(ctx, "jianying", "audio.mp3", nil)
+//	opts := &llm.Options{
+//	    APIKey: "your-api-key",
+//	    Model: "gpt-4",
+//	    Messages: []llm.Message{
+//	        {Role: "user", Content: "Hello!"},
+//	    },
+//	}
+//	result, err := llm.Chat(ctx, "openai", opts)
 //	if err != nil {
 //	    log.Fatal(err)
 //	}
-//	fmt.Println(result.Text)
-func Transcribe(ctx context.Context, providerName string, audioPath string, opts FetchOptions) (*StandardResult, error) {
+//	fmt.Println(result.Content)
+func Chat(ctx context.Context, providerName string, opts *Options) (*StandardResult, error) {
 	provider, err := Get(providerName)
 	if err != nil {
 		return nil, err
 	}
 
-	raw, err := provider.Fetch(ctx, audioPath, opts)
-	if err != nil {
-		return nil, fmt.Errorf("fetch failed: %w", err)
+	if err := opts.Validate(); err != nil {
+		return nil, err
 	}
 
-	result, err := provider.Parse(raw)
+	result, err := provider.Chat(ctx, opts)
 	if err != nil {
-		return nil, fmt.Errorf("parse failed: %w", err)
+		return nil, fmt.Errorf("chat failed: %w", err)
 	}
 
 	return result, nil

@@ -10,21 +10,21 @@
 //
 //	import (
 //	    "context"
-//	    "github.com/xifan2333/2sub/asrprovider"
-//	    "github.com/xifan2333/2sub/asrprovider/providers/bijian"
-//	    _ "github.com/xifan2333/2sub/asrprovider/providers/bijian"
+//	    "github.com/xifan2333/2sub/asr"
+//	    "github.com/xifan2333/2sub/asr/providers/bijian"
+//	    _ "github.com/xifan2333/2sub/asr/providers/bijian"
 //	)
 //
 //	opts := &bijian.Options{
 //	    Cookie: "",  // Optional
 //	}
-//	result, err := asrprovider.Transcribe(ctx, "bijian", "audio.mp3", opts)
+//	result, err := asr.Transcribe(ctx, "bijian", "audio.mp3", opts)
 package bijian
 
 import (
 	"context"
 
-	"github.com/xifan2333/2sub/asrprovider"
+	"github.com/xifan2333/2sub/asr"
 )
 
 // Provider implements the ASR provider interface for Bijian (必剪).
@@ -33,14 +33,14 @@ import (
 // ASR services, primarily for Chinese language content.
 type Provider struct{}
 
-// Ensure Provider implements asrprovider.Provider interface at compile time.
-var _ asrprovider.Provider = (*Provider)(nil)
+// Ensure Provider implements asr.Provider interface at compile time.
+var _ asr.Provider = (*Provider)(nil)
 
 func init() {
 	// Register the provider on package initialization.
-	// This allows the provider to be used via asrprovider.Get("bijian")
-	// or asrprovider.Transcribe(ctx, "bijian", ...).
-	asrprovider.Register(&Provider{})
+	// This allows the provider to be used via asr.Get("bijian")
+	// or asr.Transcribe(ctx, "bijian", ...).
+	asr.Register(&Provider{})
 }
 
 // Name returns the provider's unique identifier.
@@ -65,7 +65,7 @@ func (p *Provider) Name() string {
 //   - opts: Bijian-specific options (nil will use defaults)
 //
 // Returns the raw API response as map[string]interface{}.
-func (p *Provider) Fetch(ctx context.Context, audioPath string, opts asrprovider.FetchOptions) (asrprovider.RawResult, error) {
+func (p *Provider) Fetch(ctx context.Context, audioPath string, opts asr.FetchOptions) (asr.RawResult, error) {
 	// Validate and convert options
 	bijianOpts, ok := opts.(*Options)
 	if !ok || bijianOpts == nil {
@@ -90,7 +90,7 @@ func (p *Provider) Fetch(ctx context.Context, audioPath string, opts asrprovider
 // All timestamps are converted to milliseconds.
 //
 // Returns an error if the response format is invalid or required fields are missing.
-func (p *Provider) Parse(raw asrprovider.RawResult) (*asrprovider.StandardResult, error) {
+func (p *Provider) Parse(raw asr.RawResult) (*asr.StandardResult, error) {
 	response, ok := raw.(map[string]interface{})
 	if !ok {
 		return nil, &ParseError{Message: "invalid raw result type, expected map[string]interface{}"}

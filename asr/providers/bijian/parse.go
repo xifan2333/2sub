@@ -3,19 +3,19 @@ package bijian
 import (
 	"strings"
 
-	"github.com/xifan2333/2sub/asrprovider"
+	"github.com/xifan2333/2sub/asr"
 )
 
 // parse converts Bijian's raw response to standardized format
-func parse(response map[string]interface{}) (*asrprovider.StandardResult, error) {
+func parse(response map[string]interface{}) (*asr.StandardResult, error) {
 	utterancesRaw, ok := response["utterances"].([]interface{})
 	if !ok {
 		return nil, &ParseError{Message: "missing utterances field in response"}
 	}
 
-	result := &asrprovider.StandardResult{
-		Words:     make([]asrprovider.Word, 0),
-		Sentences: make([]asrprovider.Sentence, 0),
+	result := &asr.StandardResult{
+		Words:     make([]asr.Word, 0),
+		Sentences: make([]asr.Sentence, 0),
 	}
 
 	var textParts []string
@@ -36,7 +36,7 @@ func parse(response map[string]interface{}) (*asrprovider.StandardResult, error)
 			textParts = append(textParts, transcript)
 
 			// Add sentence-level information
-			result.Sentences = append(result.Sentences, asrprovider.Sentence{
+			result.Sentences = append(result.Sentences, asr.Sentence{
 				Text:  transcript,
 				Start: int64(startTimeUtt), // already in milliseconds
 				End:   int64(endTimeUtt),
@@ -59,7 +59,7 @@ func parse(response map[string]interface{}) (*asrprovider.StandardResult, error)
 			startTime, _ := word["start_time"].(float64)
 			endTime, _ := word["end_time"].(float64)
 
-			result.Words = append(result.Words, asrprovider.Word{
+			result.Words = append(result.Words, asr.Word{
 				Text:  label,
 				Start: int64(startTime), // already in milliseconds
 				End:   int64(endTime),

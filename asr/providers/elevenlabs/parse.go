@@ -1,11 +1,11 @@
 package elevenlabs
 
 import (
-	"github.com/xifan2333/2sub/asrprovider"
+	"github.com/xifan2333/2sub/asr"
 )
 
 // parse converts ElevenLabs's raw response to standardized format
-func parse(response map[string]interface{}) (*asrprovider.StandardResult, error) {
+func parse(response map[string]interface{}) (*asr.StandardResult, error) {
 	// Extract complete text
 	text, ok := response["text"].(string)
 	if !ok {
@@ -17,9 +17,9 @@ func parse(response map[string]interface{}) (*asrprovider.StandardResult, error)
 		return nil, &ParseError{Message: "missing words field in response"}
 	}
 
-	result := &asrprovider.StandardResult{
+	result := &asr.StandardResult{
 		Text:  text,
-		Words: make([]asrprovider.Word, 0, len(wordsRaw)),
+		Words: make([]asr.Word, 0, len(wordsRaw)),
 	}
 
 	// Extract language information (if available)
@@ -38,7 +38,7 @@ func parse(response map[string]interface{}) (*asrprovider.StandardResult, error)
 		start, _ := word["start"].(float64)
 		end, _ := word["end"].(float64)
 
-		wordTiming := asrprovider.Word{
+		wordTiming := asr.Word{
 			Text:  wordText,
 			Start: int64(start * 1000), // convert seconds to milliseconds
 			End:   int64(end * 1000),

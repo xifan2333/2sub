@@ -20,7 +20,7 @@
 //	    }
 //	    fmt.Println(result.Text)
 //	}
-package asrprovider
+package asr
 
 import "context"
 
