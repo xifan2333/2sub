@@ -3,7 +3,7 @@ package bijian
 import (
 	"strings"
 
-	"github.com/xifan2333/2sub/asr"
+	"github.com/xifan2333/2sub/pkgs/asr"
 )
 
 // parse converts Bijian's raw response to standardized format

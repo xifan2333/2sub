@@ -3,11 +3,11 @@ package jianying
 import (
 	"strings"
 
-	"github.com/xifan2333/2sub/asrprovider"
+	"github.com/xifan2333/2sub/pkgs/asr"
 )
 
 // parse converts JianYing's raw response to standardized format
-func parse(response map[string]interface{}) (*asrprovider.StandardResult, error) {
+func parse(response map[string]interface{}) (*asr.StandardResult, error) {
 	data, ok := response["data"].(map[string]interface{})
 	if !ok {
 		return nil, &ParseError{Message: "missing data field in response"}
@@ -18,9 +18,9 @@ func parse(response map[string]interface{}) (*asrprovider.StandardResult, error)
 		return nil, &ParseError{Message: "missing utterances field in data"}
 	}
 
-	result := &asrprovider.StandardResult{
-		Words:     make([]asrprovider.Word, 0),
-		Sentences: make([]asrprovider.Sentence, 0),
+	result := &asr.StandardResult{
+		Words:     make([]asr.Word, 0),
+		Sentences: make([]asr.Sentence, 0),
 	}
 
 	// Extract language information (if available)
@@ -50,7 +50,7 @@ func parse(response map[string]interface{}) (*asrprovider.StandardResult, error)
 			textParts = append(textParts, text)
 
 			// Add sentence-level information
-			sentence := asrprovider.Sentence{
+			sentence := asr.Sentence{
 				Text:  text,
 				Start: int64(startTimeUtt), // already in milliseconds
 				End:   int64(endTimeUtt),
@@ -82,7 +82,7 @@ func parse(response map[string]interface{}) (*asrprovider.StandardResult, error)
 			startTime, _ := word["start_time"].(float64)
 			endTime, _ := word["end_time"].(float64)
 
-			wordTiming := asrprovider.Word{
+			wordTiming := asr.Word{
 				Text:  wordText,
 				Start: int64(startTime), // already in milliseconds
 				End:   int64(endTime),

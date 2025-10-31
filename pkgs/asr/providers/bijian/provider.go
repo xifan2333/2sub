@@ -24,7 +24,7 @@ package bijian
 import (
 	"context"
 
-	"github.com/xifan2333/2sub/asr"
+	"github.com/xifan2333/2sub/pkgs/asr"
 )
 
 // Provider implements the ASR provider interface for Bijian (必剪).

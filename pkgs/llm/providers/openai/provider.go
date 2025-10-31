@@ -31,7 +31,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/xifan2333/2sub/llm"
+	"github.com/xifan2333/2sub/pkgs/llm"
 )
 
 const defaultBaseURL = "https://api.openai.com/v1"

@@ -1,7 +1,7 @@
 package elevenlabs
 
 import (
-	"github.com/xifan2333/2sub/asr"
+	"github.com/xifan2333/2sub/pkgs/asr"
 )
 
 // parse converts ElevenLabs's raw response to standardized format

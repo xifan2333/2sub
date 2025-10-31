@@ -11,22 +11,22 @@
 //
 //	import (
 //	    "context"
-//	    "github.com/xifan2333/2sub/asrprovider"
-//	    "github.com/xifan2333/2sub/asrprovider/providers/jianying"
-//	    _ "github.com/xifan2333/2sub/asrprovider/providers/jianying"
+//	    "github.com/xifan2333/2sub/asr"
+//	    "github.com/xifan2333/2sub/asr/providers/jianying"
+//	    _ "github.com/xifan2333/2sub/asr/providers/jianying"
 //	)
 //
 //	opts := &jianying.Options{
 //	    StartTime: 0,
 //	    EndTime:   6000,
 //	}
-//	result, err := asrprovider.Transcribe(ctx, "jianying", "audio.mp3", opts)
+//	result, err := asr.Transcribe(ctx, "jianying", "audio.mp3", opts)
 package jianying
 
 import (
 	"context"
 
-	"github.com/xifan2333/2sub/asrprovider"
+	"github.com/xifan2333/2sub/pkgs/asr"
 )
 
 // Provider implements the ASR provider interface for JianYing (剪映).
@@ -35,14 +35,14 @@ import (
 // ASR services with good support for Chinese language.
 type Provider struct{}
 
-// Ensure Provider implements asrprovider.Provider interface at compile time.
-var _ asrprovider.Provider = (*Provider)(nil)
+// Ensure Provider implements asr.Provider interface at compile time.
+var _ asr.Provider = (*Provider)(nil)
 
 func init() {
 	// Register the provider on package initialization.
-	// This allows the provider to be used via asrprovider.Get("jianying")
-	// or asrprovider.Transcribe(ctx, "jianying", ...).
-	asrprovider.Register(&Provider{})
+	// This allows the provider to be used via asr.Get("jianying")
+	// or asr.Transcribe(ctx, "jianying", ...).
+	asr.Register(&Provider{})
 }
 
 // Name returns the provider's unique identifier.
@@ -69,7 +69,7 @@ func (p *Provider) Name() string {
 //   - opts: JianYing-specific options (nil will use defaults)
 //
 // Returns the raw API response as map[string]interface{}.
-func (p *Provider) Fetch(ctx context.Context, audioPath string, opts asrprovider.FetchOptions) (asrprovider.RawResult, error) {
+func (p *Provider) Fetch(ctx context.Context, audioPath string, opts asr.FetchOptions) (asr.RawResult, error) {
 	// Validate and convert options
 	jianyingOpts, ok := opts.(*Options)
 	if !ok || jianyingOpts == nil {
@@ -96,7 +96,7 @@ func (p *Provider) Fetch(ctx context.Context, audioPath string, opts asrprovider
 // All timestamps are converted to milliseconds.
 //
 // Returns an error if the response format is invalid or required fields are missing.
-func (p *Provider) Parse(raw asrprovider.RawResult) (*asrprovider.StandardResult, error) {
+func (p *Provider) Parse(raw asr.RawResult) (*asr.StandardResult, error) {
 	response, ok := raw.(map[string]interface{})
 	if !ok {
 		return nil, &ParseError{Message: "invalid raw result type, expected map[string]interface{}"}
